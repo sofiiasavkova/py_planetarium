@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class AstronomyShow(models.Model):
@@ -37,10 +37,10 @@ class ShowSession(models.Model):
 
 class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reservations")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reservations")
 
     def __str__(self):
-        return f"Reservation by {self.user.username} on {self.created_at}"
+        return f"Reservation by {self.user.email} on {self.created_at}"
 
 
 class Ticket(models.Model):
