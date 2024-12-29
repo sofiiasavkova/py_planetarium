@@ -1,7 +1,8 @@
-from rest_framework import viewsets, mixins, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from datetime import datetime
+from .permissions import IsAdminOrIfAuthenticatedReadOnly
 from .models import AstronomyShow, PlanetariumDome, ShowTheme, ShowSession, Reservation, Ticket
 from .serializers import (
     AstronomyShowSerializer,
@@ -16,21 +17,25 @@ from .serializers import (
 class AstronomyShowViewSet(viewsets.ModelViewSet):
     queryset = AstronomyShow.objects.all()
     serializer_class = AstronomyShowSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class PlanetariumDomeViewSet(viewsets.ModelViewSet):
     queryset = PlanetariumDome.objects.all()
     serializer_class = PlanetariumDomeSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class ShowThemeViewSet(viewsets.ModelViewSet):
     queryset = ShowTheme.objects.all()
     serializer_class = ShowThemeSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class ShowSessionViewSet(viewsets.ModelViewSet):
     queryset = ShowSession.objects.all()
     serializer_class = ShowSessionSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
         show_time = self.request.query_params.get("show_time")
@@ -52,6 +57,7 @@ class ShowSessionViewSet(viewsets.ModelViewSet):
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.prefetch_related("tickets__show_session")
     serializer_class = ReservationSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -60,3 +66,4 @@ class ReservationViewSet(viewsets.ModelViewSet):
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.select_related("show_session", "reservation")
     serializer_class = TicketSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
