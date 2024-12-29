@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from datetime import datetime
@@ -15,9 +15,11 @@ from .serializers import (
 
 
 class AstronomyShowViewSet(viewsets.ModelViewSet):
-    queryset = AstronomyShow.objects.all()
+    queryset = AstronomyShow.objects.prefetch_related("theme")
     serializer_class = AstronomyShowSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["title", "description"]
 
 
 class PlanetariumDomeViewSet(viewsets.ModelViewSet):
@@ -58,6 +60,11 @@ class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.prefetch_related("tickets__show_session")
     serializer_class = ReservationSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return self.queryset
+        return self.queryset.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

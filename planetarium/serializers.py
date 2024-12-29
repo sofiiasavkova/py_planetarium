@@ -12,7 +12,7 @@ from .models import (
 class AstronomyShowSerializer(serializers.ModelSerializer):
     class Meta:
         model = AstronomyShow
-        fields = ["id", "title", "description"]
+        fields = ["id", "title", "description", "theme"]
 
 
 class ShowSessionSerializer(serializers.ModelSerializer):
@@ -40,6 +40,29 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ["id", "row", "seat", "show_session", "reservation"]
+
+    def validate(self, data):
+        show_session = data.get("show_session")
+
+        if not show_session:
+            raise serializers.ValidationError({"show_session": "Show session is required."})
+
+        dome = show_session.planetarium_dome
+
+        row = data.get("row")
+        if row < 1 or row > dome.rows:
+            raise serializers.ValidationError({"row": f"Row {row} is out of range."})
+
+        seat = data.get("seat")
+        if seat < 1 or seat > dome.seats_in_row:
+            raise serializers.ValidationError({"seat": f"Seat {seat} is out of range."})
+
+        if Ticket.objects.filter(row=row, seat=seat, show_session=show_session).exists():
+            raise serializers.ValidationError(
+                {"seat": f"Seat {seat} in row {row} is already occupied for this show session."}
+            )
+
+        return data
 
 
 class ReservationSerializer(serializers.ModelSerializer):

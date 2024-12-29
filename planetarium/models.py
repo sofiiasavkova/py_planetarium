@@ -5,6 +5,7 @@ from django.conf import settings
 class AstronomyShow(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
+    theme = models.ManyToManyField("ShowTheme", related_name="astronomy_shows", blank=True)
 
     def __str__(self):
         return self.title
@@ -48,6 +49,9 @@ class Ticket(models.Model):
     seat = models.PositiveIntegerField()
     show_session = models.ForeignKey(ShowSession, on_delete=models.CASCADE, related_name="tickets")
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name="tickets")
+
+    class Meta:
+        unique_together = ["row", "seat", "show_session"]
 
     def __str__(self):
         return f"Row {self.row}, Seat {self.seat} for {self.show_session}"
