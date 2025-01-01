@@ -45,21 +45,31 @@ class TicketSerializer(serializers.ModelSerializer):
         show_session = data.get("show_session")
 
         if not show_session:
-            raise serializers.ValidationError({"show_session": "Show session is required."})
+            raise serializers.ValidationError(
+                {"show_session": "Show session is required."}
+            )
 
         dome = show_session.planetarium_dome
 
         row = data.get("row")
         if row < 1 or row > dome.rows:
-            raise serializers.ValidationError({"row": f"Row {row} is out of range."})
+            raise serializers.ValidationError(
+                {"row": f"Row {row} is out of range."}
+            )
 
         seat = data.get("seat")
         if seat < 1 or seat > dome.seats_in_row:
-            raise serializers.ValidationError({"seat": f"Seat {seat} is out of range."})
-
-        if Ticket.objects.filter(row=row, seat=seat, show_session=show_session).exists():
             raise serializers.ValidationError(
-                {"seat": f"Seat {seat} in row {row} is already occupied for this show session."}
+                {"seat": f"Seat {seat} is out of range."}
+            )
+
+        if Ticket.objects.filter(
+                row=row,
+                seat=seat,
+                show_session=show_session
+        ).exists():
+            raise serializers.ValidationError(
+                {"seat": f"Seat {seat} in row {row} is already occupied."}
             )
 
         return data

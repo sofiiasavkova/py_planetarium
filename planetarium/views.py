@@ -3,7 +3,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from datetime import datetime
 from .permissions import IsAdminOrIfAuthenticatedReadOnly
-from .models import AstronomyShow, PlanetariumDome, ShowTheme, ShowSession, Reservation, Ticket
+
+from .models import (
+    AstronomyShow,
+    PlanetariumDome,
+    ShowTheme,
+    ShowSession,
+    Reservation,
+    Ticket
+)
+
 from .serializers import (
     AstronomyShowSerializer,
     PlanetariumDomeSerializer,
@@ -53,7 +62,10 @@ class ShowSessionViewSet(viewsets.ModelViewSet):
         total_seats = dome.rows * dome.seats_in_row
         tickets_sold = Ticket.objects.filter(show_session=session).count()
         available_seats = total_seats - tickets_sold
-        return Response({"tickets_available": available_seats}, status=status.HTTP_200_OK)
+        return Response(
+            {"tickets_available": available_seats},
+            status=status.HTTP_200_OK
+        )
 
 
 class ReservationViewSet(viewsets.ModelViewSet):

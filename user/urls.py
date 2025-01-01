@@ -12,7 +12,15 @@ urlpatterns = [
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
-    path("register/", UserViewSet.as_view({"post": "create"}), name="user-register"),
+    path(
+        "register/",
+        UserViewSet.as_view({"post": "create"}),
+        name="user-register"
+    ),
     path("users/", UserViewSet.as_view({"get": "list"}), name="user-list"),
-    path("users/<int:pk>/", UserViewSet.as_view({"get": "retrieve"}), name="user-detail"),
+    path(
+        "users/<int:pk>/",
+        UserViewSet.as_view({"get": "retrieve"}),
+        name="user-detail"
+    ),
 ]

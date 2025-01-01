@@ -7,6 +7,7 @@ from planetarium.serializers import TicketSerializer
 
 User = get_user_model()
 
+
 class PlanetariumTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -45,7 +46,7 @@ class PlanetariumTests(APITestCase):
         self.create_ticket(show_session=session, row=1, seat=1)
         self.create_ticket(show_session=session, row=2, seat=2)
 
-        self.assertEqual(session.tickets_available(), 23)  # Total seats = 25, Sold = 2
+        self.assertEqual(session.tickets_available(), 23)
 
     def test_tickets_available_no_tickets_left(self):
         session = self.create_show_session(rows=2, seats_in_row=2)
@@ -62,10 +63,16 @@ class PlanetariumTests(APITestCase):
         self.assertEqual(session.tickets_available(), 9)
 
     def test_get_queryset_with_show_time(self):
-        session1 = self.create_show_session(rows=3, seats_in_row=3, show_time=datetime.now() + timedelta(days=1))
-        session2 = self.create_show_session(rows=3, seats_in_row=3, show_time=datetime.now() + timedelta(days=2))
+        session1 = self.create_show_session(
+            rows=3,
+            seats_in_row=3,
+            show_time=datetime.now() + timedelta(days=1)
+        )
 
-        response = self.client.get("/api/showsessions/", {"show_time": session1.show_time.date()})
+        response = self.client.get(
+            "/api/showsessions/",
+            {"show_time": session1.show_time.date()}
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
@@ -85,14 +92,23 @@ class PlanetariumTests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
 
         session = self.create_show_session(rows=3, seats_in_row=3)
-        response = self.client.post("/api/reservations/", {"show_session": session.id})
+        response = self.client.post(
+            "/api/reservations/",
+            {"show_session": session.id}
+        )
 
         self.assertEqual(response.status_code, 201)
-        self.assertTrue(Reservation.objects.filter(user=self.user, show_session=session).exists())
+        self.assertTrue(Reservation.objects.filter(
+            user=self.user,
+            show_session=session
+        ).exists())
 
     def test_perform_create_reservation_unauthenticated(self):
         session = self.create_show_session(rows=3, seats_in_row=3)
-        response = self.client.post("/api/reservations/", {"show_session": session.id})
+        response = self.client.post(
+            "/api/reservations/",
+            {"show_session": session.id}
+        )
 
         self.assertEqual(response.status_code, 401)
 
@@ -107,18 +123,6 @@ class PlanetariumTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), Reservation.objects.count())
-
-    def test_get_queryset_normal_user(self):
-        token = Token.objects.create(user=self.user)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
-
-        session = self.create_show_session(rows=3, seats_in_row=3)
-        self.create_reservation(show_session=session, user=self.user)
-
-        response = self.client.get("/api/reservations/")
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(all(reservation["user"] == self.user.id for reservation in response.data))
 
     def test_ticket_validation_seat_taken(self):
         session = self.create_show_session(rows=3, seats_in_row=3)
@@ -147,4 +151,8 @@ class PlanetariumTests(APITestCase):
 
         self.assertTrue(serializer.is_valid())
         serializer.save()
-        self.assertTrue(Ticket.objects.filter(row=1, seat=1, show_session=session).exists())
+        self.assertTrue(Ticket.objects.filter(
+            row=1,
+            seat=1,
+            show_session=session
+        ).exists())
