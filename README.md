@@ -17,7 +17,7 @@ API service for planetarium management.
 - Clone the repository:
    ```
    bash
-   git clone https://github.com/your-repo/py_planetarium.git
+   git clone https://github.com/sofiiasavkova/py_planetarium.git
    cd py_planetarium
   ```
 - Create a virtual environment and install dependencies:
